@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="160" viewBox="0 0 1180 160">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#58a6ff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+<rect x="1" y="1" width="1178" height="158" rx="22" fill="#f8fbff" stroke="#c9d7ec" stroke-width="2"/>
+<text x="40" y="45" fill="#12213b" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="2">CONTRIBUTION STREAK</text>
+<rect x="40" y="60" width="1100" height="4" rx="2" fill="url(#g)"/>
+<text x="590" y="112" text-anchor="middle" fill="#60728f" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17">Run the “Refresh profile assets” workflow once to generate live data.</text>
+</svg>

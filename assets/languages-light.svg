@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="590" height="185" viewBox="0 0 590 185">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#58a6ff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+<rect x="1" y="1" width="588" height="183" rx="20" fill="#f8fbff" stroke="#c9d7ec" stroke-width="2"/>
+<text x="28" y="38" fill="#12213b" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="2">LANGUAGE SPECTRUM</text>
+<rect x="28" y="51" width="120" height="3" rx="2" fill="url(#g)"/><text x="28" y="83" fill="#60728f" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="12">Python</text>
+<rect x="150" y="70" width="390" height="12" rx="6" fill="#c9d7ec" opacity="0.5"/>
+<rect x="150" y="70" width="163.8" height="12" rx="6" fill="#58a6ff"/>
+<text x="554" y="82" text-anchor="end" fill="#12213b" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="11">42%</text><text x="28" y="105" fill="#60728f" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="12">C / C++</text>
+<rect x="150" y="92" width="390" height="12" rx="6" fill="#c9d7ec" opacity="0.5"/>
+<rect x="150" y="92" width="93.6" height="12" rx="6" fill="#8b5cf6"/>
+<text x="554" y="104" text-anchor="end" fill="#12213b" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="11">24%</text><text x="28" y="127" fill="#60728f" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="12">HTML / CSS</text>
+<rect x="150" y="114" width="390" height="12" rx="6" fill="#c9d7ec" opacity="0.5"/>
+<rect x="150" y="114" width="70.2" height="12" rx="6" fill="#30bced"/>
+<text x="554" y="126" text-anchor="end" fill="#12213b" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="11">18%</text><text x="28" y="149" fill="#60728f" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="12">JavaScript</text>
+<rect x="150" y="136" width="390" height="12" rx="6" fill="#c9d7ec" opacity="0.5"/>
+<rect x="150" y="136" width="39.0" height="12" rx="6" fill="#ff9f43"/>
+<text x="554" y="148" text-anchor="end" fill="#12213b" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="11">10%</text><text x="28" y="171" fill="#60728f" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="12">Other</text>
+<rect x="150" y="158" width="390" height="12" rx="6" fill="#c9d7ec" opacity="0.5"/>
+<rect x="150" y="158" width="23.4" height="12" rx="6" fill="#9fb3d0"/>
+<text x="554" y="170" text-anchor="end" fill="#12213b" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="11">6%</text></svg>
