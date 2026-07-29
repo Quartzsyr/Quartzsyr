@@ -1,17 +1,16 @@
-````markdown
-<!-- ==================== HEADER ==================== -->
+<!-- ===================== HEADER ===================== -->
 
 <p align="center">
   <img
     width="100%"
     src="https://capsule-render.vercel.app/api?type=waving&color=0:0D1117,50:1F6FEB,100:8B5CF6&height=190&section=header&text=Quartz&fontSize=58&fontColor=FFFFFF&animation=fadeIn&fontAlignY=35&desc=Optical%20Sensing%20%C2%B7%20Scientific%20Computing%20%C2%B7%20Photography&descAlignY=58&descSize=17"
-    alt="Quartz Header"
+    alt="Quartz"
   />
 </p>
 
 <p align="center">
   <img
-    src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=18&duration=3200&pause=1000&color=58A6FF&center=true&vCenter=true&width=850&height=45&lines=MICROCAVITY+LASER+%C2%B7+OPTICAL+SENSING+%C2%B7+ION+DETECTION;PYTHON+TOOLS+%C2%B7+SCIENTIFIC+VISUALIZATION+%C2%B7+EMBEDDED+SYSTEMS;RESEARCH+BY+LOGIC+%C2%B7+PHOTOGRAPHY+BY+INSTINCT"
+    src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=18&duration=3000&pause=1000&color=58A6FF&center=true&vCenter=true&width=900&height=45&lines=MICROCAVITY+LASER+%C2%B7+OPTICAL+SENSING+%C2%B7+ION+DETECTION;PYTHON+TOOLS+%C2%B7+SCIENTIFIC+VISUALIZATION+%C2%B7+EMBEDDED+SYSTEMS;RESEARCH+BY+LOGIC+%C2%B7+PHOTOGRAPHY+BY+INSTINCT"
     alt="Typing Animation"
   />
 </p>
@@ -33,26 +32,24 @@
 
 <br>
 
-<!-- ==================== PROFILE ==================== -->
+<!-- ===================== ABOUT ===================== -->
 
-## Profile
+## About Me
 
 <table>
   <tr>
     <td width="58%" valign="top">
 
-### Research and Engineering
-
 Graduate student in **Electronic Information Engineering**.
 
-My current research focuses on optical sensing, microcavity lasers and ion-concentration detection. I also build scientific software for data processing, visualization and experimental analysis.
+My research focuses on optical sensing, microcavity lasers and ion-concentration detection. I also develop scientific software for experimental data processing, visualization and analysis.
 
 ```text
 Research     Optical sensing · Microcavity laser
 Development  Python · MATLAB · C/C++ · Qt
 Engineering  Embedded systems · Computer vision
 Creative     Photography · Visual identity
-````
+```
 
 </td>
     <td width="42%" valign="top">
@@ -72,7 +69,7 @@ Creative     Photography · Visual identity
 
 <br>
 
-<!-- ==================== TECH STACK ==================== -->
+<!-- ===================== TECH STACK ===================== -->
 
 ## Technology
 
@@ -85,7 +82,7 @@ Creative     Photography · Visual identity
 
 <br>
 
-<!-- ==================== RESEARCH ==================== -->
+<!-- ===================== RESEARCH ===================== -->
 
 ## Research Direction
 
@@ -111,7 +108,7 @@ Optical Sensing
 
 <br>
 
-<!-- ==================== PROJECTS ==================== -->
+<!-- ===================== PROJECTS ===================== -->
 
 ## Selected Projects
 
@@ -160,17 +157,9 @@ Optical Sensing
 
 <br>
 
-<!-- ==================== GITHUB DATA ==================== -->
+<!-- ===================== GITHUB STATS ===================== -->
 
 ## GitHub Overview
-
-<p align="center">
-  <img
-    src="./github-metrics.svg"
-    width="100%"
-    alt="GitHub Metrics"
-  />
-</p>
 
 <p align="center">
   <picture>
@@ -193,7 +182,21 @@ Optical Sensing
     <img
       height="165"
       src="https://github-readme-stats.vercel.app/api/top-langs/?username=Quartzsyr&layout=compact&hide_border=true&bg_color=00000000&title_color=0969DA&text_color=57606A"
-      alt="Most Used Languages"
+      alt="Top Languages"
+    />
+  </picture>
+</p>
+
+<p align="center">
+  <picture>
+    <source
+      media="(prefers-color-scheme: dark)"
+      srcset="https://streak-stats.demolab.com?user=Quartzsyr&theme=tokyonight&hide_border=true&background=00000000"
+    />
+    <img
+      height="170"
+      src="https://streak-stats.demolab.com?user=Quartzsyr&theme=default&hide_border=true&background=00000000"
+      alt="GitHub Streak"
     />
   </picture>
 </p>
@@ -208,22 +211,22 @@ Optical Sensing
 
 <br>
 
-<!-- ==================== PHOTOGRAPHY ==================== -->
+<!-- ===================== PHOTOGRAPHY ===================== -->
 
 ## Photography
 
 <table>
   <tr>
-    <td width="50%" valign="top">
+    <td width="55%" valign="top">
 
 ### Visual Language
 
 Minimal compositions, restrained colors and quiet observation.
 
-Photography is not separated from my engineering work. Both begin with measurement, structure and attention to detail.
+Photography is not separate from my engineering work. Both begin with measurement, structure and attention to detail.
 
 </td>
-    <td width="50%" valign="top">
+    <td width="45%" valign="top">
 
 ### Quartz
 
@@ -235,7 +238,7 @@ Silence
 Observation
 ```
 
-Explore the archive at **[MuseFilm](https://musefilm.top)** and **[500px](https://500px.com.cn/Quartz)**.
+Explore my visual archive on [MuseFilm](https://musefilm.top) and [500px](https://500px.com.cn/Quartz).
 
 </td>
   </tr>
@@ -243,31 +246,7 @@ Explore the archive at **[MuseFilm](https://musefilm.top)** and **[500px](https:
 
 <br>
 
-<!-- ==================== CONTRIBUTION SNAKE ==================== -->
-
-## Contribution Flow
-
-<p align="center">
-  <picture>
-    <source
-      media="(prefers-color-scheme: dark)"
-      srcset="./dist/github-snake-dark.svg"
-    />
-    <source
-      media="(prefers-color-scheme: light)"
-      srcset="./dist/github-snake.svg"
-    />
-    <img
-      src="./dist/github-snake.svg"
-      width="100%"
-      alt="GitHub Contribution Snake"
-    />
-  </picture>
-</p>
-
-<br>
-
-<!-- ==================== CONTACT ==================== -->
+<!-- ===================== CONTACT ===================== -->
 
 <p align="center">
   <a href="https://github.com/Quartzsyr">GitHub</a>
@@ -280,9 +259,7 @@ Explore the archive at **[MuseFilm](https://musefilm.top)** and **[500px](https:
 </p>
 
 <p align="center">
-  <sub>
-    Research by logic. Photography by instinct.
-  </sub>
+  <sub>Research by logic. Photography by instinct.</sub>
 </p>
 
 <p align="center">
@@ -292,4 +269,3 @@ Explore the archive at **[MuseFilm](https://musefilm.top)** and **[500px](https:
     alt="Footer"
   />
 </p>
-```
