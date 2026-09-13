@@ -1,191 +1,140 @@
 #!/usr/bin/env python3
-"""Generate local GitHub profile SVG cards.
-
-The script uses GitHub's REST API and writes theme-aware SVG files into assets/.
-It intentionally avoids third-party image endpoints so README images remain stable.
-"""
-
+"""Build self-hosted profile cards from public GitHub data; standard library only."""
 from __future__ import annotations
-
 import datetime as dt
 import html
+from html.parser import HTMLParser
 import json
 import os
-import pathlib
-import sys
-import urllib.error
-import urllib.parse
+from pathlib import Path
+import re
 import urllib.request
 from collections import Counter
-from typing import Any
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
-ASSETS = ROOT / "assets"
-OWNER = os.environ.get("PROFILE_USERNAME") or os.environ.get("GITHUB_REPOSITORY_OWNER") or "Quartzsyr"
-TOKEN = os.environ.get("GITHUB_TOKEN", "")
-EXCLUDED_REPOS = {
-    item.strip()
-    for item in os.environ.get("EXCLUDED_REPOS", "Quartzsyr").split(",")
-    if item.strip()
-}
+ROOT = Path(__file__).resolve().parents[1]
+ASSETS = ROOT / 'assets'
+OWNER = os.getenv('GITHUB_REPOSITORY_OWNER', 'Quartzsyr')
+TOKEN = os.getenv('GITHUB_TOKEN', '')
+EXCLUDED = set(os.getenv('EXCLUDED_REPOS', 'Quartzsyr').split(','))
 
-API = "https://api.github.com"
+def fetch(url, api=True):
+    headers = {'User-Agent': 'Quartz-profile', 'Accept': 'application/vnd.github+json' if api else 'text/html'}
+    if api and TOKEN:
+        headers['Authorization'] = 'Bearer ' + TOKEN
+    with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=30) as r:
+        raw = r.read().decode()
+    return json.loads(raw) if api else raw
 
-
-def request_json(url: str) -> tuple[Any, dict[str, str]]:
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "User-Agent": "Quartz-profile-assets",
-        "X-GitHub-Api-Version": "2022-11-28",
-    }
-    if TOKEN:
-        headers["Authorization"] = f"Bearer {TOKEN}"
-    req = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(req, timeout=30) as response:
-        data = json.loads(response.read().decode("utf-8"))
-        return data, dict(response.headers.items())
-
-
-def paginate(url: str) -> list[dict[str, Any]]:
-    output: list[dict[str, Any]] = []
-    page = 1
+def repositories():
+    rows, page = [], 1
     while True:
-        separator = "&" if "?" in url else "?"
-        data, _ = request_json(f"{url}{separator}per_page=100&page={page}")
-        if not isinstance(data, list):
-            raise RuntimeError(f"Expected list from {url}")
-        output.extend(data)
-        if len(data) < 100:
-            break
+        batch = fetch(f'https://api.github.com/users/{OWNER}/repos?type=owner&per_page=100&page={page}')
+        rows.extend(batch)
+        if len(batch) < 100:
+            return rows
         page += 1
-    return output
 
+class Calendar(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.dates, self.counts, self.tip, self.buffer = {}, {}, None, ''
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if a.get('data-date') and a.get('id'):
+            self.dates[a['id']] = a['data-date']
+        if tag == 'tool-tip' and a.get('for', '').startswith('contribution-day-component-'):
+            self.tip, self.buffer = a['for'], ''
+    def handle_data(self, data):
+        if self.tip:
+            self.buffer += data
+    def handle_endtag(self, tag):
+        if tag == 'tool-tip' and self.tip:
+            match = re.match(r'\s*(No|[\d,]+) contributions? on ', self.buffer)
+            if match:
+                self.counts[self.tip] = 0 if match[1] == 'No' else int(match[1].replace(',', ''))
+            self.tip = None
+    def days(self):
+        if len(self.dates) < 350 or set(self.dates) - set(self.counts):
+            raise ValueError('Incomplete contribution calendar; keeping existing cards')
+        rows = sorted((date, self.counts[key]) for key, date in self.dates.items())
+        dates = [dt.date.fromisoformat(d) for d, _ in rows]
+        if any((b-a).days != 1 for a,b in zip(dates, dates[1:])):
+            raise ValueError('Non-contiguous contribution calendar')
+        return rows
 
-def esc(value: object) -> str:
-    return html.escape(str(value), quote=True)
+def text(x,y,value,size=14,color='text',weight=400):
+    return f'<text x="{x}" y="{y}" fill="var(--{color})" font-size="{size}" font-weight="{weight}">{html.escape(str(value))}</text>'
 
+def card(theme, height, title, body):
+    dark = theme == 'dark'
+    colors = ['#0d1117','#30363d','#e6edf3','#8b949e','#161b22'] if dark else ['#ffffff','#d0d7de','#1f2328','#656d76','#f6f8fa']
+    variables = ';'.join(f'--{k}:{v}' for k,v in zip(['bg','border','text','sub','track'],colors))
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="900" height="{height}" viewBox="0 0 900 {height}" role="img" aria-label="{html.escape(title)}">
+<title>{html.escape(title)}</title><style>svg{{{variables};font-family:Arial,sans-serif}}.reveal{{animation:reveal 1.4s ease-out both;transform-box:fill-box;transform-origin:left}}@keyframes reveal{{from{{transform:scaleX(.02);opacity:.2}}to{{transform:scaleX(1);opacity:1}}}}@media(prefers-reduced-motion:reduce){{.reveal{{animation:none}}}}</style>
+<rect x=".5" y=".5" width="899" height="{height-1}" rx="16" fill="var(--bg)" stroke="var(--border)"/>
+{text(28,34,title,13,'sub',700)}{body}</svg>'''
 
-def fmt_number(value: int) -> str:
-    if value >= 1_000_000:
-        return f"{value / 1_000_000:.1f}M"
-    if value >= 1_000:
-        return f"{value / 1_000:.1f}K"
-    return str(value)
+def overview(theme, profile, repos):
+    own = [r for r in repos if not r['fork'] and not r['private']]
+    values = [('ORIGINAL REPOS',len(own)),('STARS',sum(r['stargazers_count'] for r in own)),('FORKS',sum(r['forks_count'] for r in own)),('FOLLOWERS',profile['followers'])]
+    body = ''.join(text(28+i*220,87,f'{v:,}',34,weight=700)+text(28+i*220,112,k,11,'sub') for i,(k,v) in enumerate(values))
+    body += text(28,145,'Public, owned, non-fork repositories · Updated '+dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d UTC'),11,'sub')
+    return card(theme,166,'GITHUB / OVERVIEW',body)
 
-
-def theme_values(theme: str) -> dict[str, str]:
-    dark = theme == "dark"
-    return {
-        "bg": "#08111f" if dark else "#f8fbff",
-        "border": "#2b4568" if dark else "#c9d7ec",
-        "text": "#f4f7fb" if dark else "#12213b",
-        "sub": "#9fb3d0" if dark else "#60728f",
-        "track": "#1d304a" if dark else "#dce6f4",
-    }
-
-
-def stats_svg(theme: str, profile: dict[str, Any], repos: list[dict[str, Any]]) -> str:
-    c = theme_values(theme)
-    owned = [r for r in repos if not r.get("fork")]
-    public_repos = len(owned)
-    stars = sum(int(r.get("stargazers_count", 0)) for r in owned)
-    forks = sum(int(r.get("forks_count", 0)) for r in owned)
-    followers = int(profile.get("followers", 0))
-    items = [
-        ("PUBLIC REPOS", public_repos),
-        ("TOTAL STARS", stars),
-        ("FOLLOWERS", followers),
-        ("TOTAL FORKS", forks),
-    ]
-    updated = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d UTC")
-    body = []
-    for index, (label, value) in enumerate(items):
-        x = 28 + index * 138
-        body.append(
-            f'<text x="{x}" y="105" fill="{c["text"]}" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="28" font-weight="700">{esc(fmt_number(value))}</text>'
-        )
-        body.append(
-            f'<text x="{x}" y="131" fill="{c["sub"]}" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="10" font-weight="600" letter-spacing="1">{label}</text>'
-        )
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="590" height="185" viewBox="0 0 590 185">
-<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#58a6ff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
-<rect x="1" y="1" width="588" height="183" rx="20" fill="{c['bg']}" stroke="{c['border']}" stroke-width="2"/>
-<text x="28" y="38" fill="{c['text']}" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="2">GITHUB SIGNALS</text>
-<rect x="28" y="51" width="120" height="3" rx="2" fill="url(#g)"/>
-{''.join(body)}
-<text x="28" y="162" fill="{c['sub']}" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="11">Updated {updated} · generated inside this repository</text>
-</svg>'''
-
-
-def collect_languages(repos: list[dict[str, Any]]) -> Counter[str]:
-    totals: Counter[str] = Counter()
-    candidates = [
-        repo
-        for repo in repos
-        if not repo.get("fork")
-        and not repo.get("archived")
-        and repo.get("name") not in EXCLUDED_REPOS
-    ]
-    for repo in candidates:
-        full_name = repo.get("full_name")
-        if not full_name:
-            continue
-        try:
-            data, _ = request_json(f"{API}/repos/{full_name}/languages")
-            if isinstance(data, dict):
-                for language, bytes_count in data.items():
-                    totals[str(language)] += int(bytes_count)
-        except Exception as exc:  # keep the remaining repositories usable
-            print(f"warning: language request failed for {full_name}: {exc}", file=sys.stderr)
-            primary = repo.get("language")
-            if primary:
-                totals[str(primary)] += 1
-    return totals
-
-
-def languages_svg(theme: str, totals: Counter[str]) -> str:
-    c = theme_values(theme)
-    palette = ["#58a6ff", "#8b5cf6", "#30bced", "#ff9f43", "#9fb3d0"]
-    total = sum(totals.values()) or 1
-    top = totals.most_common(5)
+def languages(theme, totals):
+    top = totals.most_common(6)
+    if len(totals)>6:
+        top.append(('Other',sum(totals.values())-sum(v for _,v in top)))
+    palette=['#58a6ff','#a78bfa','#39d3bb','#f2cc60','#f78166','#db61a2','#8b949e']
+    total=sum(totals.values())
+    body=''
+    x=28
+    for i,(name,value) in enumerate(top):
+        width=844*value/total
+        body+=f'<rect class="reveal" x="{x:.2f}" y="56" width="{width:.2f}" height="12" fill="{palette[i]}"/>'
+        x+=width
+        xx=28+(i%4)*218; yy=101+(i//4)*29
+        body+=f'<circle cx="{xx+4}" cy="{yy-4}" r="4" fill="{palette[i]}"/>'+text(xx+16,yy,f'{name} {value/total:.1%}',13)
     if not top:
-        top = [("Python", 1)]
-        total = 1
-    rows = []
-    y = 78
-    for index, (language, amount) in enumerate(top):
-        percent = amount / total * 100
-        width = max(4, 390 * percent / 100)
-        color = palette[index % len(palette)]
-        rows.append(f'<text x="28" y="{y+5}" fill="{c["sub"]}" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="12">{esc(language)}</text>')
-        rows.append(f'<rect x="150" y="{y-8}" width="390" height="12" rx="6" fill="{c["track"]}"/>')
-        rows.append(f'<rect x="150" y="{y-8}" width="{width:.1f}" height="12" rx="6" fill="{color}"/>')
-        rows.append(f'<text x="554" y="{y+4}" text-anchor="end" fill="{c["text"]}" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="11">{percent:.1f}%</text>')
-        y += 22
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="590" height="185" viewBox="0 0 590 185">
-<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#58a6ff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
-<rect x="1" y="1" width="588" height="183" rx="20" fill="{c['bg']}" stroke="{c['border']}" stroke-width="2"/>
-<text x="28" y="38" fill="{c['text']}" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="2">LANGUAGE SPECTRUM</text>
-<rect x="28" y="51" width="120" height="3" rx="2" fill="url(#g)"/>
-{''.join(rows)}
-</svg>'''
+        body+=text(28,95,'No language data available',14,'sub')
+    body+=text(28,164,'Share of code bytes · Public originals · Archived repositories and this profile excluded',11,'sub')
+    return card(theme,184,'CODE / LANGUAGES',body)
 
+def activity(theme,days):
+    values=[n for _,n in days]
+    best=run=0
+    for n in values:
+        run=run+1 if n else 0
+        best=max(best,run)
+    labels=[('CONTRIBUTIONS',sum(values)),('ACTIVE DAYS',sum(n>0 for n in values)),('BEST STREAK',str(best)+' days'),('LAST 30 DAYS',sum(values[-30:]))]
+    body=''.join(text(28+i*220,86,f'{v:,}' if isinstance(v,int) else v,30,weight=700)+text(28+i*220,110,k,11,'sub') for i,(k,v) in enumerate(labels))
+    weeks=[sum(values[i:i+7]) for i in range(0,len(values),7)]
+    peak=max(weeks) or 1
+    for i,n in enumerate(weeks):
+        h=max(2,n/peak*65)
+        body+=f'<rect x="{28+i*844/len(weeks):.2f}" y="{202-h:.2f}" width="{844/len(weeks)-4:.2f}" height="{h:.2f}" rx="2" fill="'+('#39d3bb' if n else 'var(--track)')+f'"><title>{days[i*7][0]}: {n} contributions</title></rect>'
+    body+=text(28,226,f'{days[0][0]} → {days[-1][0]} · Weekly contributions · Best streak within this period',11,'sub')
+    return card(theme,247,'ACTIVITY / PAST YEAR',body)
 
-def main() -> int:
-    ASSETS.mkdir(parents=True, exist_ok=True)
-    try:
-        profile, _ = request_json(f"{API}/users/{urllib.parse.quote(OWNER)}")
-        repos = paginate(f"{API}/users/{urllib.parse.quote(OWNER)}/repos?type=owner&sort=updated")
-        languages = collect_languages(repos)
-    except (urllib.error.URLError, urllib.error.HTTPError, RuntimeError, json.JSONDecodeError) as exc:
-        print(f"warning: GitHub API unavailable; preserving existing profile assets: {exc}", file=sys.stderr)
-        return 0
-
-    for theme in ("dark", "light"):
-        (ASSETS / f"stats-{theme}.svg").write_text(stats_svg(theme, profile, repos), encoding="utf-8")
-        (ASSETS / f"languages-{theme}.svg").write_text(languages_svg(theme, languages), encoding="utf-8")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+def main():
+    # Fetch and validate everything before replacing any existing assets.
+    profile=fetch(f'https://api.github.com/users/{OWNER}')
+    repos=repositories()
+    totals=Counter()
+    for r in repos:
+        if not r['fork'] and not r['private'] and not r['archived'] and r['name'] not in EXCLUDED:
+            totals.update(fetch(r['languages_url']))
+    parser=Calendar()
+    parser.feed(fetch(f'https://github.com/users/{OWNER}/contributions',api=False))
+    days=parser.days()
+    assets={}
+    for theme in ['dark','light']:
+        assets[f'stats-{theme}.svg']=overview(theme,profile,repos)
+        assets[f'languages-{theme}.svg']=languages(theme,totals)
+        assets[f'activity-{theme}.svg']=activity(theme,days)
+    ASSETS.mkdir(exist_ok=True)
+    for name,body in assets.items():
+        (ASSETS/name).write_text(body)
+    print(f'Generated {len(assets)} cards from {len(repos)} public repositories and {len(days)} contribution days.')
+if __name__=='__main__':
+    main()
