@@ -129,8 +129,8 @@ def main():
     days=parser.days()
     assets={}
     for theme in ['dark','light']:
-        assets[f'stats-{theme}.svg']=overview(theme,profile,repos)
-        assets[f'languages-{theme}.svg']=languages(theme,totals)
+        assets[f'overview-{theme}.svg']=overview(theme,profile,repos)
+        assets[f'code-languages-{theme}.svg']=languages(theme,totals)
         assets[f'activity-{theme}.svg']=activity(theme,days)
     ASSETS.mkdir(exist_ok=True)
     for name,body in assets.items():

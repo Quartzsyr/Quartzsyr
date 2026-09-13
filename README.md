@@ -60,8 +60,8 @@ Also building: [DS Flowchart](https://github.com/Quartzsyr/DS_Flowchart) · [Mus
 ## By the numbers
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/stats-dark.svg" />
-  <img src="./assets/stats-light.svg" width="100%" alt="Public repository, star, fork and follower statistics" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/overview-dark.svg" />
+  <img src="./assets/overview-light.svg" width="100%" alt="Public repository, star, fork and follower statistics" />
 </picture>
 
 <picture>
@@ -70,8 +70,8 @@ Also building: [DS Flowchart](https://github.com/Quartzsyr/DS_Flowchart) · [Mus
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/languages-dark.svg" />
-  <img src="./assets/languages-light.svg" width="100%" alt="Language distribution by code bytes" />
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/code-languages-dark.svg" />
+  <img src="./assets/code-languages-light.svg" width="100%" alt="Language distribution by code bytes" />
 </picture>
 
 <p align="center">
